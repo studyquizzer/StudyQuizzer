@@ -29,7 +29,7 @@ else:
             "file": {
                 "level": "INFO",
                 "class": "logging.FileHandler",
-                "filename": "/var/log/django.log",
+                "filename": "/home/main/log/django.log",
                 "formatter": "app",
             },
             "mail_admins": {
