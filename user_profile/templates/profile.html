@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container my-3">
+        {% if errors %}
+        <hr>
+        {{errors}}
+        {% endif %}
+        <p class="text-center h5">Hello, please introduce yourself to us.</p>
+        <hr>
+        <form action="" method='POST' enctype="multipart/form-data">{% csrf_token %}
+            {{form | crispy}}
+            <input type="submit" class="btn btn-success" name="submit" value="Submit">
+        </form>
+        </div>
+    </div>
+{% endblock %}

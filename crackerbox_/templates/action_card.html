@@ -1,0 +1,20 @@
+{% load static %}
+
+<div class="card" style="max-width: 350px">
+    <img
+        alt="study quizzer action"
+        class="card-img-top"
+        src="{% static '' %}{{image_url}}"
+    />
+    <div class="card-header border-0">
+        <h5 class="card-title">{{action}}</h5>
+    </div>
+    <div class="card-body">
+        <p class="card-text text-black-secondary">{{details}}</p>
+    </div>
+    <div class="card-actions">
+        <a href="{% url ''|add:url_path %}">
+            <button class="btn btn-flat-primary" type="button">start</button>
+        </a>
+    </div>
+</div>

@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}CrackerBox open questions{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+
+  <div class="d-flex flex-row-reverse">
+    <div class="page-header mt-4">
+      {% if user.is_resolver or user.is_advanced or not user.is_authenticated%}
+      <a class="btn btn-lg btn-material" style="background-color:#455a64; color:white;"
+        href="{% url 'qa_create_question' %}">
+        <span class="fas fa-plus" aria-hidden="true"></span> Ask
+        Question</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row no-gutter">
+    <div class="col-md-8">
+        <ul class="nav nav-justified nav-tabs" id="justifiedTab" role="tablist">
+          <li class="nav-item">
+            <a aria-controls="home" aria-selected="true" class="nav-link active" data-toggle="tab" href="#latest"
+              id="latest-tab" role="tab"><i><span class="fas fa-list"></span></i> Latest</a>
+          </li>
+          <li class="nav-item">
+            <a aria-controls="profile" aria-selected="false" class="nav-link" data-toggle="tab" href="#unanswered"
+              id="unans-tab" role="tab"><span class="fas fa-sign"></span> Unanswered <span
+                class="badge">{{ totalnoans }}</span></a>
+          </li>
+          <li class="nav-item">
+            <a aria-controls="contact" aria-selected="false" class="nav-link" data-toggle="tab" href="#reward"
+              id="reward-tab" role="tab"><span class="fas fa-star"></span> Most Rewarding <span
+                class="badge">{{ reward | length }}</span></a>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="justifiedTabContent">
+          <div aria-labelledby="latest-tab" class="tab-pane fade show active" id="latest" role="tabpanel">
+            {% if questions %}
+              {% for question in questions %}
+
+                <div class="row mt-3">
+                  <div class="col-sm-1 ans">
+                    <small>
+                      <div class="ques">{{ question.num_answers }}</div>Answers
+                    </small>
+                  </div>
+
+                  <div class="col-sm-1 ans">
+                    <small>
+                      <div class="ques">{{ question.hit_count.hits }}</div>Views
+                    </small>
+                  </div>
+
+                  <div class="col">
+                    <p>
+                      {% if question.reward %}<span class="fas fa-fire" aria-hidden="true"></span>{% endif %}
+                      <p class="h5"><a href="{% url 'qa_detail' question.id %}"
+                          class="text-info">{{ question.title }}</a>
+                      </p>
+                      </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    {% for tag in question.tags.all %}
+                    <a href="{% url 'qa_tag' tag.slug %}">
+                      <tag class="text-dark bg-light">{{ tag.slug }}</tag>
+                    </a>
+                    {% endfor %}
+                    <small> {{ question.pub_date }}</small>
+                  </div>
+                </div>
+          
+                <hr>
+              {% endfor %}
+
+              <div class="pagination">
+                {% if is_paginated %}
+                <div class="pagination">
+                  <span class="page-links">
+                    {% if page_obj.has_previous %}
+                    <a href="{% url 'qa_index' %}?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+                    <span class="page-current">
+                      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+                    {% if page_obj.has_next %}
+                    <a href="{% url 'qa_index' %}?page={{ page_obj.next_page_number }}">next</a>
+                    {% endif %}
+                  </span>
+                </div>
+                {% endif %}
+              </div>
+
+            {% else %}
+              <div class="alert alert-dark" role="alert">No Questions are available!</div>
+            {% endif %}
+          </div>
+
+          <div aria-labelledby="unans-tab" class="tab-pane fade" id="unanswered" role="tabpanel" class="bg-red">
+            {% if noans %}
+              {% for question in noans %}
+              <div class="row mt-3">
+                <div class="col-sm-1 ans">
+                  <small>
+                    <div class="ques">{{ question.num_answers }}</div>Answers
+                  </small>
+                </div>
+
+                <div class="col-sm-1 ans">
+                  <small>
+                      <div class="ques">{{ question.hit_count.hits }}
+                      </div>Views
+                  </small>
+                </div>
+                <div class="col">
+                  <p>
+                    {% if question.num_answers %}
+                      <span class="fas fa-fire"
+                      aria-hidden="true"></span>
+                    {% endif %} 
+                    <p class="h5"><a class="ques"
+                    href="{% url 'qa_detail' question.id %}">{{ question.title }}</a></p>
+                  </p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  {% for tag in question.tags.all %}
+                  <a href="{% url 'qa_tag' tag.slug %}">
+                    <tag class="text-dark bg-light">{{ tag.slug }}</tag>
+                  </a>
+                  {% endfor %}
+                  <small> {{ question.pub_date }}</small>
+                </div>
+              </div>
+              <hr>
+              {% endfor %}
+
+            {% else %}
+              <div class="alert alert-dark" role="alert">No Questions are available!</div>
+              {% endif %}
+              <div class="pagination">
+                <span class="step-links">
+                  {% if noans.has_previous %}
+                  <a href="?noans_page={{ noans.previous_page_number }}&active_tab=unans">previous</a>
+                  {% endif %}
+
+                  <span class="current">
+                    Page {{ noans.number }} of {{ noans.paginator.num_pages }}.
+                  </span>
+
+                  {% if noans.has_next %}
+                  <a href="?noans_page={{ noans.next_page_number }}&active_tab=unans">next</a>
+                {% endif %}
+              </span>
+            </div>
+          </div>
+
+
+          <div aria-labelledby="reward-tab" class="tab-pane fade" id="reward" role="tabpanel">
+            {% if reward %}
+            {% for question in reward %}
+
+            <div class="row mt-3">
+              <div class="col-sm-1 ans"><small>
+                <div class="ques">{{ question.num_answers }}
+                </div>Answers
+                </small>
+                </div>
+              <div class="col-sm-1 ans">
+                <small>
+                  <div class="ques">{{ question.hit_count.hits }}</div>Views
+                </small>
+              </div>
+
+              <div class="col">
+                <p>
+                  {% if question.num_answers %}<span class="glyphicon glyphicon-fire"
+                    aria-hidden="true"></span>{% endif %} 
+                    <p class="h5"><a class="ques"
+                    href="{% url 'qa_detail' question.id %}">{{ question.title }}</a>
+                    </p>
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                {% for tag in question.tags.all %}
+                <a href="{% url 'qa_tag' tag.slug %}">
+                  <tag class="text-dark bg-light">{{ tag.slug }}</tag>
+                </a>
+                {% endfor %}
+                <small> {{ question.pub_date}}</small>
+              </div>
+            </div>
+            <hr>
+            {% endfor %}
+
+            {% else %}
+            <div class="alert alert-dark" role="alert">No Questions are available!</div>
+            {% endif %}
+          </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-4">
+
+      <div class="card my-3" style="max-width: 350px;">
+        <div class="card-body">
+          <p class="h4 card-text text-black-secondary">Total Questions: {{ totalcount }}</p>
+          <p class="h4 card-text text-black-secondary">Total Answers: {{ anscount }}</p>
+        </div>
+      </div>
+
+      <div class="card my-3">
+        <div class="card-header bg-light">
+        <span><i class="fas fa-tags"></i></span>
+          Recent Tags
+        </div>
+        <div class="card-body py-3">
+          <p class="card-text">{% for tag in tags %}
+          <a href="{% url 'qa_tag' tag.slug %}">
+            <tag class="text-dark bg-light">
+              {{ tag.slug }}
+            </tag>
+          </a>
+          {% endfor %}</p>
+        </div>
+      </div>
+
+      <div class="card my-3">
+        <div class="card-header bg-light">
+          Unanswered Questions
+        </div>
+        <div class="card-body">
+          <ul>
+            {% for question in noans %}
+              <li class="mt-2"><a href="{% url 'qa_detail' question.id %}">{{ question.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+</div>
+
+</div>
+
+{% endblock content %}
+
+{% block extra_script %}
+{% endblock extra_script %}

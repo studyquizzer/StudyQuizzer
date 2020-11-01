@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% load thumbnail %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row" style="background-color:white; ">
+            <div class="col-md-10 col-12 _main_">
+                <ul id='chat-items'>
+                    <li class="li-item" style="padding-bottom:20px; list-style-type:none;"></li>
+                </ul>
+
+                <div class="sub form-group">
+                    <form id='sendMessage' method=''> {% csrf_token %}
+                        <input type='text' name='message' id='inp' class="form-control">
+                        <button class='btn'>Send</button>
+                    </form>
+                </div>
+            </div>
+
+
+            <div class="col-md-2 hide-on-small-only _side_">
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8">
+
+                        {% thumbnail other_user.get_avatar "80x80" crop="center" as im %}
+                            <img class="image center-align my-center" src="{{ im.url }}" width="{{ im.width }}"
+                                height="{{ im.height }}">
+                        {% endthumbnail %}
+
+                        <p class="text-center name my-center h6">{{ other_user.first_name }} {{ other_user.last_name }}
+                        </p>
+                        <p class="text-muted text-center my-center h6">
+                            {{ other_user.occupation }}</p>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_import_script %}
+<script src="https://unpkg.com/@pusher/chatkit-client@1/dist/web/chatkit.js"></script>
+{% endblock extra_import_script %}
+
+{% block extra_script %}
+    {% if exist %}
+        $.ajax({
+            url: '/messages/get_auth_details',
+            dataType: 'json',
+            type: 'GET'
+        }).done(function (chatObject) {
+            console.log(chatObject)
+            const tokenProvider = new Chatkit.TokenProvider({
+                url: `${chatObject.tokenProvider}`
+            });
+
+            const chatManager = new Chatkit.ChatManager({
+                instanceLocator: `${chatObject.instanceLocator}`,
+                userId: "{{ request.user.username }}",
+                tokenProvider: tokenProvider
+            });
+
+            chatManager.connect()
+                .then(currentUser => connect_func(currentUser))
+                .catch(error => {
+                    // console.error("error:", error);
+                });
+
+            function connect_func(currentUser) {
+
+                currentUser.subscribeToRoomMultipart({
+                    roomId: '{{ chat_obj.roomId }}',
+                    hooks: {
+                        onMessage: message => {
+                            let chatItems = $('#chat-items')
+                            const {senderId, parts} = message;
+
+                            if (senderId === '{{request.user.username}}') {
+                                $('#chat-items').append(
+                                `<div class="row right-message">
+                                    <div class="col-md-10 right" style="padding-right: 11vh; text-align: right;" dir="rtl">${parts[0].payload.content}</div>
+                                    <div class="col-md-2 right"></div>
+                                </div>
+
+                                <div class="row right-message">
+
+                                <div class="col right">
+                                    {% if request.user.profile.pic %}
+                                    <img class="chat-image text-center z-depth-2" src="
+                                    {{request.user.profile.pic.url}}" alt="${senderId}" width="30px"
+                                        height="30px">
+                                    {% else %}
+                                    <img class="" width="50px" height="50px" src="{% static 'qa/user.png' %}">
+                                    {% endif %}
+                                </div>
+                                <div class="col right grey-text lighten-1">you at ${message.createdAt.substring(0, 10)}</div>
+                                <div class="row"></div>
+
+                            </div>`)
+                            } else {
+                                $('#chat-items').append(`<div class="row left-message">
+
+                                    <div class="col-md-10 left" style="padding-left: 10vh;">${parts[0].payload.content}</div>
+                                    <div class="col-md-2 left"></div>
+
+                                </div>
+                                <div class="row left-message">
+
+                                    <div class="col left">
+                                        {% if other_user.pic %}
+                                        <img class="chat-image center-align z-depth-2" src="{{other_user.pic.url}}"
+                                        alt="${senderId}" width="30px" height="30px">
+                                        {% else %}
+                                        <img class="" width="50px" height="50px" src="{% static 'qa/user.png' %}">
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col left  grey-text lighten-1">{{ other_user.first_name }} at ${message.createdAt.substring(0, 10)}</div>
+
+                                    <div class="row"></div>
+
+                                </div>`)
+
+                            }
+                        }
+                    }
+                });
+
+                const sendMessage = document.getElementById('sendMessage');
+                sendMessage.addEventListener('submit', e => {
+                    e.preventDefault();
+
+                    const message = e.target.message.value;
+
+                    currentUser.sendMessage({
+                        text: message,
+                        roomId: '{{ chat_obj.roomId }}',
+                    });
+                    e.target.message.value = '';
+                });
+            }
+        })
+
+    {% else %}
+
+        $.ajax({
+            url: '/messages/get_auth_details',
+            dataType: 'json',
+            type: 'GET'
+        }).done(function (chatK) {
+            console.log(chatK)
+            const tokenProvider = new Chatkit.TokenProvider({
+                url: `${chatK.tokenProvider}`
+            });
+
+            const chatManager = new Chatkit.ChatManager({
+                instanceLocator: `${chatK.instanceLocator}`,
+                userId: "{{ request.user.username }}",
+                tokenProvider: tokenProvider
+            });
+
+            chatManager.connect()
+                .then(currentUser => connect_func(currentUser))
+                .catch(error => {
+
+                })
+
+            function connect_func(currentUser) {
+                let room_id = 0
+                currentUser.createRoom({
+                    id: '22222',
+                    name: '{{request.user.username}} -- {{other_user.user.username}}',
+                    private: true,
+                    addUserIds: ['{{other_user.user.username}}'],
+                }).then(room => {
+                    $.ajax({
+                        headers: {'X-CSRFTOKEN': '{{csrf_token}}'},
+                        url: '/messages/setRoomId/{{chat_obj.id}}',
+                        data: {'roomId': room.id},
+                        type: 'POST'
+                    }).done(function (response) {
+                        // danger zone not tested
+                        response.json()
+                            .then(function (response) {
+                            room_id = response.room_id
+                            currentUser.subscribeToRoomMultipart({
+                                roomId: `${response.id}`,
+                                hooks: {
+                                    onMessage: message => {
+                                        let chatItems = $('#chat-items')
+                                        const {senderId, parts} = message;
+
+                                        if (senderId === '{{request.user.username}}') {
+                                            $('#chat-items').append(
+                                            `<div class="row right-message">
+                                                <div class="col-md-10 right" style="padding-right: 11vh; text-align: right;" dir="rtl">${parts[0].payload.content}</div>
+                                                <div class="col-md-2 right"></div>
+                                            </div>
+                                            <div class="row right-message">
+                                                <div class="col right">
+                                                    {% if request.user.profile.pic %}
+                                                    <img class="chat-image center-align z-depth-2" src="
+                                                    {{request.user.profile.pic.url}}" alt="${senderId}" width="30px"
+                                                        height="30px">
+                                                    {% else %}
+                                                    <img class="" width="50px" height="50px" src="
+                                                    {% static 'qa/user.png' %}">
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col right grey-text lighten-1">you at ${message.createdAt.substring(0, 10)}</div>
+                                                <div class="row"></div>
+                                            </div>`)
+                                        } else {
+                                            $('#chat-items').append(
+                                                `<div class="row left-message">
+                                                    <div class="col-md-10 left" style="padding-left: 10vh;">${parts[0].payload.content}</div>
+                                                    <div class="col-md-2 left"></div>
+                                                </div>
+                                                <div class="row left-message">
+                                                    <div class="col left">
+                                                        {% if other_user.pic %}
+                                                        <img class="chat-image center-align z-depth-2" src="
+                                                    {{other_user.pic.url}}" alt="${senderId}" width="30px"
+                                                            height="30px">
+                                                        {% else %}
+                                                        <img class="" width="50px" height="50px" src="
+                                                    {% static 'qa/user.png' %}">
+                                                        {% endif %}
+                                                    </div>
+
+                                                    <div class="col left  grey-text lighten-1">{{ other_user.first_name }} at ${message.createdAt.substring(0, 10)}</div>
+
+                                                    <div class="row"></div>
+
+                                                </div>`)
+                                        }
+                                    }
+                                }
+                            }).catch(function (error) {
+                                // console.log(error)
+                            });
+                            const sendMessage = document.getElementById('sendMessage');
+                            sendMessage.addEventListener('submit', e => {
+                                e.preventDefault();
+
+                                const message = e.target.message.value;
+
+                                currentUser.sendMessage({
+                                    text: message,
+                                    roomId: `${response.id}`,
+                                });
+
+                                e.target.message.value = '';
+                            });
+
+                        })
+                            .catch(err => {
+                                // console.log(`Error creating room ${err}`)
+                            })
+                    });
+
+                });
+            }
+        })
+
+    {% endif %}
+
+    let times = 0;
+    let alerts = [
+        "welcome {{ request.user.profile.first_name | escapejs }} {{ request.user.profile.last_name | escapejs }}",
+        "to crackerbox chat room "
+    ];
+
+    function toast() {
+        M.toast({
+        html: alerts[times]
+        }), ++times == alerts.length && clearInterval(timeOut)
+    }
+
+    const timeOut = setInterval(toast, 800);
+{% endblock %}

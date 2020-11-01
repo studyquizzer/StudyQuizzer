@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="container">
+  <div class="my-5">
+    {% if message %}
+    <strong>Enter a valid Question!</strong>
+    {% endif %}
+
+    <form method="post" action="{% block action_url %}{% url 'qa_create_question' %}{% endblock action_url %}">
+      {% csrf_token %}
+      {{form | crispy}}
+      {{ form.media }}
+      <input class="btn pull-right btn-success" type="submit" value="Submit Question" />
+    </form>
+
+  </div>
+</div>
+
+{% endblock content %}
+

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script>
+{% block jquery %}
+function updateText(btn, newCount, verb){
+  btn.text(newCount + " " + verb)
+  btn.attr("data-likes", newCount)
+}
+$(".like-btn").click(function(e){
+  e.preventDefault()
+  var this_ = $(this)
+  var likeUrl = this_.attr("data-href")
+  var likeCounts = parseInt(this_.attr("data-likes"))
+  $.ajax({
+    url: likeUrl,
+    method: "GET",
+    data: {},
+    success:function(data){
+      // console.log(data)
+      var newLikes
+      if (data.liked){
+        newLikes = likeCounts + 1
+        updateText(this_, newLikes,"Like")
+      }else{
+        newLikes = likeCounts - 1
+        updateText(this_, newLikes,"Like")
+      }
+    },error:function(error){
+      // console.log(error)
+      // console.log("error")
+    }
+  })
+})
+{% endblock %}
+</script>
+
+<h1>{{ item.restaurant }}</h1>
+<a href="{% url 'like' item.slug %}" class="like-btn" data-href= '{{item.get_api_toggle_url}}' data-likes= '{{item.likes.count}}'>{{item.likes.count}} like</a>
+<hr>
+<a href="{% url 'like' item.slug %}" class="btn btn-warning">Like</a>
+
+<pre><code>pip install
+  Hello World</code></pre>
+
+  {% endblock %}

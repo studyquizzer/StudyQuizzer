@@ -1,0 +1,9 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.pythonPath": "C:\\Users\\iamsh\\Miniconda3\\envs\\django\\python.exe",
+    "cSpell.words": [
+        "grequests",
+        "spacy",
+        "sqlite"
+    ]
+}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include "carousel.html" %}
+<div class="container-fluid">
+    <div class="w-100">
+
+        <!-- sub carousel -->
+
+        <div class="row text-center" style="padding-top: 3rem;">
+            <div class="col-12 mx-auto" style="width:1000px;">
+                <p class="" style="font-size: 2.5rem;">Designed thoughtfully for you.</p>
+            </div>
+            <hr style="border-top: 2px solid #b4b4b4; width: 95%; margin-top: .3rem; margin-bottom: 2rem;">
+            <div class="col-12">
+                <p class="lead">Earness the power of social community education as you connect with friends that
+                    are reading the same
+                    book as you in real time. Super awesome right?
+                </p>
+            </div>
+        </div>
+
+        <hr style="border-top: 2px solid #b4b4b4; width: 95%; margin-top: .3rem; margin-bottom: 2rem;">
+        <!-- 3 col  umn -->
+        <div class="container-fluid">
+            <div class="row text-center" style="padding-top: 3rem;">
+                <div class="col-sm-12  col-md-4">
+                    <h3>ASK</h3>
+                    <p>Ask questions on various educational topics.</p>
+                </div>
+                <div class="col-sm-12  col-md-4">
+                    <h3>ANSWER</h3>
+                    <p>Answer educative and interesting questions on our site.</p>
+                </div>
+                <div class="col-sm-12  col-md-4">
+                    <h3>REWARD</h3>
+                    <p>Get ratings for a good Answer.
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4" style="margin-top: 3rem;">
+        </div>
+
+        <figure>
+            <div class="col-lg-6">
+                <img src="{% static 'base_.jpg' %}" class="img-fluid" alt="">
+            </div>
+            <div class="fixed-wrap">
+                <div id="fixed">
+                </div>
+            </div>
+        </figure>
+
+        <div class="">
+            <hr class="my-4" style="margin-top: 3rem;">
+            <div class="row text-center" style="padding-top: 3rem;">
+                <div class="col-sm-12 col-md-4">
+                    <i class="fas fa-align-left fa-3x" style="padding-bottom:15px;"></i>
+                    <p>Get resources from friends, share ideas, Ask questions and get real time correct answers
+                        from
+                        the Studyquizzer
+                        community.
+                    </p>
+                </div>
+                <div class="col-sm-12 col-md-4">
+                    <i class="fas fa-align-justify fa-3x" style="padding-bottom:15px;"></i>
+                    <p>Read in between the lines with our grammar buster. No more giant words during study because
+                        you
+                        have the power to
+                        know the meaning of big words as you study with the Studyquizzer reader with in-built
+                        dictionary.</p>
+                </div>
+                <div class="col-sm-12 col-md-4">
+                    <i class="fas fa-align-right fa-3x" style="padding-bottom:15px;"></i>
+                    <p>Automatically generate questions from your books with our artificial intelligent examiner.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 col-md-4 text-center">
+                <!-- <h5 class="text-center" style=" font-weight:bold; ">About Us</h5> -->
+                <div id="counter" style="padding-top:2.1rem;"><span class="counter-block text-center">
+                        <span class="labels">{{ questions |default_if_none:0}}</span> Questions Generated </span></div>
+            </div>
+
+            <div class="col-sm-12 col-md-4 text-center" style="padding-top:10px;">
+                <h5 class="text-center" style="font-weight:bold;">Quote</h5>
+                <p id="quote"></p>
+            </div>
+
+            <div class="col-sm-12 col-md-4 text-center">
+                <h5 class="text-center" style="font-weight:bold;">About Us</h5>
+                <p class="text-muted">Studyquizzer is a sophisticated educational platform dedicated to providing
+                    educational resources and apps to its
+                    users. We are commited to creating and improving on our advanced study solutions everyday.
+                </p>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_script %}
+    function fine(t) {
+        word = t.contents.quotes[0].quote, document.getElementById("quote").textContent = word
+    }
+    fetch("https://quotes.rest/qod.json").then(t => t.json()).then(t => fine(t));
+{% endblock extra_script %}

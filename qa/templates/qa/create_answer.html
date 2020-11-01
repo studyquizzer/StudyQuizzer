@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+  <div class="container">
+    <div class="mt-5">
+      {% if message %}
+      <strong>Enter a valid Question!</strong>
+      {% endif %}
+
+      <form method="post"
+        action="{% block action_url %}{% url 'qa_create_answer' view.kwargs.question_id %}{% endblock action_url %}">
+        {% csrf_token %}
+        {{ form }}
+        {{ form.media }}
+        <input class="btn pull-right btn-success" type="submit" value="Submit Answer" />
+      </form>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+

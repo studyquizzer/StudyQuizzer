@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+{% block content %}
+  <p>Hello</p>
+  <h1>{{cake}}</h1>
+  <h3>{% if user.is_authenticated %}
+  <li>User: {{ user.get_username }}{% else %} Not Logged in{%endif%}</li></h3>
+  {% if user.is_authenticated %}
+    {% if users.profiled %}Profiled Already
+    {% else %}
+    <a href="{% url 'make_profiled' %}">Complete Profile</a>
+    {% endif %}
+  {% endif%}
+    <p>{{users}}</p>
+{% endblock %}

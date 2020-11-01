@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+{% load martortags %}
+{% load static %}
+{% load thumbnail %}
+
+{% block extra_css %}
+<link href="{% static 'css/qa.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}
+  <title>{{question.title}}</title>
+{% endblock title %}
+
+{% block content %}
+
+<div class="container px-3">
+
+  <div class="my-4">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-dismissible fade show {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+      role="alert">{{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  {% if question.close %}
+  <div class="closed"></div>
+  {% else %}
+  <div class="open"></div>
+  {% endif %}
+
+
+  <div class="my-4">{% if message %}
+    <div class="alert alert-danger alert-dismissible" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="row no-gutter">
+    <div class="col-12">
+
+      <div class="row justify-content-between">
+        <div class="col-8 col-lg-10">
+          <div class="">
+            <p class="h4">{{ question.title }}</p>
+          </div>
+        </div>
+
+        <div class="col-4 col-lg-2">
+          <div class="page-header">
+            {% if user.is_resolver or user.is_advanced or not user.is_authenticated%}
+            <a class="btn btn-lg btn-material" style="background-color:#455a64; color:white;"
+              href="{% url 'qa_create_question' %}">
+              <span class="fas fa-plus" aria-hidden="true"></span> Ask
+              Question</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+
+        <div class="col-1 rateQues">
+
+          {% if user.is_authenticated %}
+
+          <div>
+            <form action="{% url 'qa_question_vote' question.id %}" method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <input type="hidden" name="upvote" value="on">
+
+              <a href="#" onclick="$(this).closest('form').submit()" title="Vote Up this Question"
+                class="text-primary"><i class="fas fa-caret-up fa-3x"></i></a>
+            </form>
+          </div>
+          {% endif %}
+          <br>
+
+
+          <div class="score mx-2">
+            <p>{{ question.total_points }}</p>
+          </div>
+
+
+          {% if user.is_authenticated %}
+            <div>
+              <form action="{% url 'qa_question_vote' question.id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+
+                <a href="#" onclick="$(this).closest('form').submit()" title="Vote Down this Question"
+                  class="text-primary"><i class="fas fa-caret-down fa-3x"></i></a>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+
+
+        <div class="col-11">
+          <p class="qstn-detail">{{ question.description|safe_markdown  }}</p>
+          <div class="my-tags">
+            {% for tag in question.tags.all %}
+              <a href="{% url 'qa_tag' tag.slug %}" class="btn btn-success my-btn">
+                <tags>{{ tag.slug }}</tags>
+              </a>
+            {% endfor %}
+          </div>
+
+          </br>
+
+          {% if user.is_authenticated and question.user == user and question.close == False %}<a
+            href="{% url 'qa_update_question' question.id %}">
+            <small class="pull-left">Edit &nbsp;</small></a>
+          {% endif %}
+          {% if user.is_authenticated and question.user != user and user.is_resolver %} <a href="#" data-toggle="modal"
+            data-target="#questionFlagModal"><small class="pull-left">Flag</small></a>
+          {% endif %}</br>
+
+
+          <div class="">
+
+            {% if last_comments %}
+            {% for comment in last_comments %}
+            <div class="row">
+              <div class="col-2"></div>
+
+              <div class="col-10 py-0">
+              
+                {{ comment.comment_text|safe_markdown }}
+                
+                <div class="w-100 d-flex">
+                  <p>
+                    <small>
+                      <a href="{% url 'qa_profile' comment.user.profile.slug %}">
+                        {{ comment.user.username }}
+                      </a>
+                      --
+                      {{ comment.pub_date }}
+                    </small>
+                  </p>
+
+                  {% if comment.user == request.user %}
+                  <a href="{% url 'qa_update_question_comment' comment.id %}">
+                    <small>Edit &nbsp;</small>
+                  </a>{% endif %}
+                  {% if user.is_authenticated and comment.user != user and user.is_resolver %}
+                  <a href="#" data-toggle="modal" data-target="#questionCommentFlagModal"
+                    onclick="flag_question_comm({{ comment.id }})">
+                    <small>Flag &nbsp;</small>
+                  </a>
+                  {% endif %}
+                </div>
+
+              </div>
+
+            </div>
+            {% endfor %}
+            {% endif %}
+
+          </div>
+
+
+          {% comment %} Asker card {% endcomment %}
+          <div class="asker d-flex flex-row-reverse">
+            <div class="d-flex flex-column shadow p-2">
+              <p class="text-muted my-0 py-0">
+                Posted {% if not question.in_days %}{{time}}{% else %}{{day}}{% endif %}
+              </p>
+
+              <div class="row">
+
+                <div class="col-4 my-0 py-0">
+
+                  {% thumbnail question.user.profile.user.profile.get_avatar "50x50" crop="center" as im %}
+                  <div class="bg-white rounded">
+                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+                      style="border-radius:5px;">
+                  </div>
+                  {% endthumbnail %}
+
+                </div>
+
+                <div class="col-8 my-0 py-0">
+                  <a href="{% url 'qa_profile' question.user.profile.slug %}">
+                    <p class="my-0 py-0">{{ question.user.profile.user.username }}</p>
+                    </a>
+                    <p class="my-0 py-0">{{ question.user.profile.points }} points</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+          <div class="d-flex flex-row-reverse">
+
+            {% if question.closed %}
+              <div class=" pull-left">
+                <p class="pull-right text-danger">This Question has been closed.</p>
+              </div>
+            {% else %}
+              {% if user.is_resolver or user.is_advanced %}
+
+                <div class="mt-3 {% if question.close %} hide {% endif %}">
+                  <a class="btn btn-primary btn-sm my-btn" href="{% url 'qa_create_answer' question.id %}"
+                    role="button">
+                    {% if user.is_authenticated and question.user == user %} Answer Your Question!{% else %}Answer this
+                    Question!{% endif %}</a>
+
+                  <a class="btn btn-primary btn-sm my-btn" href="{% url 'qa_create_question_comment' question.id %}"
+                    role="button">Comment
+                    this Question!</a>
+
+                  {% if user.is_authenticated and question.user == user %}<form
+                    action="{% url 'qa_close_question' question.id %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}" />
+                    <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
+                      data-placement="bottom">Close
+                      question</button>
+                  </form>
+                  {% endif %}
+
+                </div>
+              {% endif %}
+            {% endif %}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="row no-gutters">
+
+    <div class="col-12 mx-0 px-0">
+
+      {% comment %} <div class="row"> {% endcomment %}
+        {% if answers %}
+          <p class="answer_ h5">Answers</p>
+          <hr>
+
+          {% for answer in answers %}
+            <div class="row no-gutters">
+              <div class="col-1 mx-0 px-0">
+                {% if user.is_authenticated and question.close == False %}
+                  <div>
+                    <div>
+                      <form action="{% url 'qa_answer_vote' answer.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <input type="hidden" name="upvote" value="on">
+                        <!-- <button type="submit" class="btn btn-sm btn-success" data-toggle="tooltip" data-placement="top" title="Vote Up this answer"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button> -->
+                        <a href="#" onclick="$(this).closest('form').submit()" title="Vote Up this answer">
+                          <i class="fas fa-caret-up fa-3x"></i>
+                        </a>
+                      </form>
+                    </div>
+
+                    <div class="score"><big class="custom-big"><b>{{ answer.total_points }}</b></big></div>
+                    <div>
+                      <form action="{% url 'qa_answer_vote' answer.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <input type="hidden" name="downvote" value="on">
+
+                        <a href="#" onclick="$(this).closest('form').submit()" title="Vote Down this answer">
+                          <i class="fas fa-caret-down fa-3x"></i>
+                        </a>
+                      </form>
+                    </div>
+                  </div>  
+                {% endif %}
+
+                {% if user.is_authenticated and answer.question.user == user and answer.question.close == False %}
+                    <form action="{% url 'qa_answer_question' answer.id %}" method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{{ request.path }}" />
+
+                        <a href="#" onclick="$(this).closest('form').submit()" title="Mark as answer">
+                          <i class="fas fa-check fa-2x"></i>
+                        </a>
+                    </form>
+                {% else %}
+                  {% if answer.answer == True %}
+                    <div style="padding-top:40px;">
+                      <a title="Picked Answer"><i class="fas fa-certificate fa-2x"></i></a>
+                    </div>
+
+                  {% endif %}
+                {% endif %}
+              </div>
+
+
+              <div class="col-11 mx-0 px-0">
+                <div class="answr">
+                  <div id="ans" class="pt-4">{{ answer.answer_text|safe_markdown }}</div>
+                  
+                  {% if answer.user == user %}
+                    <a href="{% url 'qa_update_answer' answer.id %}" class="pull-right">
+                      <small>Edit &nbsp;</small>
+                    </a>
+                  {% endif %}
+                  {% if user.is_authenticated and answer.user != user and user.is_resolver %}
+                    <a href="#" data-toggle="modal" data-target="#answerFlagModal" class="pull-right"
+                      onclick="flag_answer({{ answer.id }})">
+                      <small>Flag &nbsp;</small>
+                    </a>
+                  {% endif %}
+
+                  <div class="d-flex flex-row-reverse w-100">
+                    <div class="d-flex flex-column">
+                      <div class="answers">
+                        <div class="pub_ans comment-text">
+                          <p class="text-muted my-1">Posted {{ answer.pub_date }}</p>
+                        </div>
+
+                        <div class="row no-gutters">
+                          <div class="col-4 my-0 py-0">
+                            {% thumbnail answer.user.profile.user.profile.get_avatar "50x50" crop="center" as im %}
+                            <div class="bg-white rounded">
+                              <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+                                style="border-radius:5px;">
+                            </div>
+                            {% endthumbnail %}
+                          </div>
+
+                          <div class="col-8 my-0 py-0">
+                              <a href="{% url 'qa_profile' answer.user.profile.slug %}">{{ answer.user.username }}</a>
+                            <p>{{ answer.user.profile.points }} Points</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                {% if answer.answercomment_set %}
+                  {% for comment in answer.answercomment_set.all %}
+                    <div class="row no-gutters">
+                      <div class="col-1"></div>
+                      <div class="col-11">
+                        <div class="comment-text">
+                          {{ comment.comment_text|safe_markdown  }}
+                        </div>
+                        <div class="w-100 d-flex">
+                          <p>
+                            <small>
+                              <a href="{% url 'qa_profile' comment.user.profile.slug %}">
+                                {{ comment.user.username }}
+                              </a>
+                              --
+                              {{ comment.pub_date }}
+                            </small>
+                          </p>
+
+                        {% if comment.user == user %}
+                          <a href="{% url 'qa_update_answer_comment' comment.id %}">
+                            <small>Edit &nbsp;</small>
+                          </a>
+                        {% endif %}
+                        {% if user.is_authenticated and comment.user != user and user.is_resolver %}
+                          <a href="#" data-toggle="modal" data-target="#answercommFlagModal" onclick="flag_answer_comm({{ comment.id }})">
+                            <small>Flag &nbsp;</small>
+                          </a>
+                        {% endif %}
+                        <hr>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+                <div class="d-flex flex-row-reverse my-0">
+                  <div class="">
+                    <a href="{% url 'qa_create_answer_comment' answer.id %}" class="my-0">
+                      <small><span class="fas fa-comment" aria-hidden="true"></span> Comment &nbsp;</small>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="row">
+            <div class="col-3"><img src="{% static 'qa/question.jpg' %}" alt="question" />
+            </div>
+            <div class="col-9 d-flex align-items-center">
+              <div class="h5">This question is still open, <a href="{% url 'qa_create_answer' question.id %}" role="button">Write
+                  answer!</a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% comment %} </div> {% endcomment %}
+
+    </div>
+
+  </div>
+
+
+
+  <!-- modal for flag -->
+  <div class="modal fade" id="questionFlagModal" tabindex="-1" role="dialog" aria-labelledby="questionFlagModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="questionFlagModalLabel">Flag</h4>
+        </div>
+        <div class="modal-body">
+          <a href="#" name='spam' id="spam">
+            <p>Spam</p>
+          </a>
+          <a href="#" name="inapp" id="inapp">
+            <p>Inappropriate</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="questionCommentFlagModal" tabindex="-1" role="dialog"
+    aria-labelledby="questionCommentFlagModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="questionCommentFlagModalLabel">Flag</h4>
+        </div>
+        <div class="modal-body">
+          <a href="#" name='spam' id="Qspam">
+            <p>Spam</p>
+          </a>
+          <a href="#" name="inapp" id="Qinapp">
+            <p>Inappropriate</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="answerFlagModal" tabindex="-1" role="dialog" aria-labelledby="answerFlagModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="answerFlagModalLabel">Flag</h4>
+        </div>
+        <div class="modal-body">
+          <a href="#" name='spam' id="Aspam">
+            <p>Spam</p>
+          </a>
+          <a href="#" name="inapp" id="Ainapp">
+            <p>Inappropriate</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="answercommFlagModal" tabindex="-1" role="dialog"
+    aria-labelledby="answercommFlagModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="answercommFlagModalLabel">Flag</h4>
+        </div>
+        <div class="modal-body">
+          <a href="#" name='spam' id="ACspam">
+            <p>Spam</p>
+          </a>
+          <a href="#" name="inapp" id="ACinapp">
+            <p>Inappropriate</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_script %}
+  // these two variable will hold the question id, and the answer id
+  var qstn_comm_id = 0
+
+  var answer_id = 0
+
+  var answer_comm_id = 0
+
+  function flag_question_comm(param) {
+    qstn_comm_id = param
+  }
+
+  function flag_answer(param) {
+    answer_id = param
+  }
+
+  function flag_answer_comm(param) {
+    answer_comm_id = param
+  }
+
+
+  $('#ACspam').click(function () {
+    $.ajax({
+      url: `/cbox/flag_answercomment_spam/${answer_comm_id}`
+    })
+  })
+
+  $('#ACinapp').click(function () {
+    $.ajax({
+      url: `/cbox/flag_answercomment_inapp/${answer_comm_id}`
+    })
+  })
+  $('#Aspam').click(function () {
+    $.ajax({
+      url: `/cbox/flag_answer_spam/${answer_id}`
+    })
+  })
+
+  $('#Ainapp').click(function () {
+    $.ajax({
+      url: `/cbox/flag_answer_inapp/${answer_id}`
+    })
+  })
+
+  $('#Qspam').click(function () {
+    $.ajax({
+      url: `/cbox/flag_questioncomment_spam/${qstn_comm_id}`
+    })
+  })
+
+  $('#Qinapp').click(function () {
+    $.ajax({
+      url: `/cbox/flag_questioncomment_inapp/${qstn_comm_id}`
+    })
+  })
+
+  $('#spam').click(function () {
+    $.ajax({
+      url: "/cbox/flag_question_spam/{{question.id}}"
+    })
+  })
+
+  $('#inapp').click(function () {
+    $.ajax({
+      url: "/cbox/flag_question_inapp/{{question.id}}"
+    })
+  })
+{% endblock extra_script %}

@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+{% block content %}
+{% if follower_ %}
+<ul>
+
+{% for follower in follower_  %}
+
+<a href="{% url 'user-profile' follower.follower.slug %}"><li>{{follower.follower}}</li></a>
+
+<p class="text-muted">{{follower.follower.user.username}}</p>
+
+{% endfor %}
+</ul>
+{% else %}
+
+<p>{{followed_.first_name}} {{followed_.last_name}}  does not follow anyone.</p>
+{% endif %}
+
+
+{% endblock %}

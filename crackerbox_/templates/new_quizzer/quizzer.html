@@ -1,0 +1,19 @@
+{% extends 'base_react.html' %}
+{% load static %}
+
+{% block title %}
+{% endblock title %}
+
+{% block content %}
+    <div id="entry_point">
+    </div>
+{% endblock content %}
+
+{% block extra_import_script %}
+    {{block.super}}
+    <script src="{% static 'js/react_quizzer/prod/bundle.js' %}"></script>
+{% endblock extra_import_script %}
+
+{% block extra_script %}
+const unique_id = '{{id}}'
+{% endblock extra_script%}

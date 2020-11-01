@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<img src="{{profile.pic.url}}" alt="" style="width:200px; height:150px; margin: 0 auto;
+  width: auto;">
+<h2 class="text-danger">{{profile.first_name}}</h2>
+<h3 class="text-success">{{profile.last_name}}</h3>
+{% if user.email == profile.user.email %}
+<hr>
+<h5 class="text-success">{{profile.user.email}}</h3>
+{% endif %}
+<hr>
+<h3 class="text-success">{{profile.age}}</h3>
+<h3 class="text-success">{{profile.sex}}</h3>
+<hr>
+<a href="{% url 'my-followers' profile.slug %}"><h2 class="text-danger">Follower: {{follower.count}}</h2></a>
+<a href="{% url 'my-follow' profile.slug %}"><h2 class="text-danger">Following: {{following.count}}</h2></a>
+<hr>
+{% if user.email == profile.user.email %}
+<a href="{% url 'update-profile' %}" class="btn btn-success">Edit profile</a>
+{% else %}
+<a href="{% url 'follows' profile.slug %}" class="btn btn-success">Follow</a>
+{% endif %}
+
+
+{% endblock %}

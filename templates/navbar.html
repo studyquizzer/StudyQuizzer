@@ -1,0 +1,53 @@
+{% load static %}
+{% load thumbnail %}
+{% comment %} {% load notifications_tags %} {% endcomment %}
+
+{% comment %} {% notifications_unread as unread_count %} {% endcomment %}
+
+<nav class="navbar navbar-expand-lg navbar-dark heading-font-style" , style="background-color:#424242">
+    <a class="nav-link typography-headline-4 py-0 px-0" href="{% url 'home' %}" style="color:white;">Studyquizzer</a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navToggler"
+        aria-controls="navToggler" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navToggler">
+        <form method="GET" action="{% url 'qa_search' %}" class="form-inline ml-auto my-0 py-0">
+            <div class="row">
+                <div class="col-sm-8 my-0 py-0">
+                    <input class="form-control mr-sm-2" type="search" value="" name="word"
+                        placeholder="type keyword(s) here" aria-label="Search" style="width:400px;">
+                </div>
+                <div class="col-sm-4 my-0 py-0">
+                    <button class="btn btn-dark my-2 my-sm-0" type="submit">FIND</button>
+                </div>
+            </div>
+        </form>
+
+        <ul class="navbar-nav ml-auto mt-2 mt-lg-0 heading-font heading-font-style-items">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'qa_index' %}">Open Questions</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'quizzer_home' %}">Studyquizzer</a>
+            </li>
+            {% if request.user.is_authenticated and request.user.profile %}<li><a
+                    href="{% url 'qa_profile' request.user.profile.slug %}" class="nav-item active">
+                    {% thumbnail user.profile.get_avatar "30x30" crop="center" as im %}
+                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border-radius:5px;">
+                    {% endthumbnail %}</a></li>
+            {% endif %}
+
+            {% comment %} {% if unread_count %}
+                <li class="nav-item active p-1">
+                <span class="nav-item  active material-icons position-relative">
+                    notification_important
+                    {% live_notify_badge badge_class="badge badge-danger live_notify_badge" %}
+                </span>
+                </li>
+            {% endif %} {% endcomment %}
+        </ul>
+    </div>
+</nav>
+<div class="" style="border-bottom:2px solid white"></div>

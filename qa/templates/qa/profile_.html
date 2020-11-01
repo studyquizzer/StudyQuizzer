@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load thumbnail %}
+
+{% block content %}
+
+<div class="container">
+    <ul class="nav nav-justified nav-tabs my-2" id="justifiedTab" role="tablist">
+        <li class="nav-item">
+            <a aria-controls="profile" aria-selected="true" class="nav-link" data-toggle="tab" href="#profile"
+                id="profile-tab" role="tab">Profile</a>
+        </li>
+        <li class="nav-item">
+            <a aria-controls="contact" aria-disabled="true" aria-selected="false" class="nav-link" data-toggle="tab"
+                href="#contact"
+                id="data" role="tab">Data</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="justifiedTabContent">
+        <div aria-labelledby="profile-tab" class="tab-pane active" id="profile" role="tabpanel">
+            
+            <div class="row">
+                <div class="col-lg-4">
+                    <br>
+                    <div class="user_card" style="width:200px;">
+                        <div class="card">
+                            <div class="card-img-top">
+                                {% if user.user.profile.pic %}
+                                <img class="" src="{{user.user.profile.pic.url}}" alt="" style="width:200px;">
+                                {% else %}
+                                <img class="" width="200px" src="{% static 'ace.jpg' %}">
+                                {% endif %}
+
+                            </div>
+                            <div class="card-body">
+
+                                <ul class="nav nav-justified nav-tabs" id="justifiedTab" role="tablist">
+                                    <li class="nav-item">
+                                        <a aria-controls="rank" aria-selected="true" class="nav-link active"
+                                            data-toggle="tab" href="#rank" id="rank-tab" role="tab">Rank</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a aria-controls="fact" aria-selected="false" class="nav-link"
+                                            data-toggle="tab" href="#fact" id="fact-tab" role="tab">Fact</a>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content" id="justifiedTabContent">
+                                    <div aria-labelledby="home-tab" class="tab-pane fade show active" id="rank"
+                                        role="tabpanel">
+                                        <ul class="my-3">
+                                            <li> {{answer}} Answers </li>
+                                            <li> {{question_count}} Questions </li>
+                                            <li> {{user.points}} POINTS </li>
+                                            <li> {{tCount}} people reached </li>
+                                        </ul>
+                                        </div>
+                                    <div aria-labelledby="profile-tab" class="tab-pane fade" id="fact"
+                                        role="tabpanel">
+                                        <ul class="my-3">
+                                            <li class='center'>Last seen :</li>
+                                            <li>{{ user.user.last_login }}</li>
+                                            <li class='center'>Date joined :</li>
+                                            <li>{{ date_joined }}</li>
+                                        </ul>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-8">
+                    <h3>{{user.user.profile.first_name.capitalize}} {{user.user.profile.last_name.capitalize}}</h3>
+
+                    <p class="text-muted" style=" font-size : 17px; ">{{user.user.profile.occupation}}</p>
+
+                    <p class="{% if user.user.profile.bio == None %} text-muted {% endif %} "
+                        style=" font-size : 18px; ">
+                        {% if user.user.profile.bio == None %}No bio yet. {% else %} {{user.user.profile.bio}}
+                        {% endif %}</p>
+
+                    {% if request.user == user.user %} <a href="{% url 'update-profile' %}">Edit profile</a> {% endif %}
+                    <br>
+
+                    <!-- <h5>Top Tags({{tag_}})</h5> -->
+                    <h5>Top tag</h5>
+                    <div class="rule" style="margin-bottom:20px; margin-top:10px; border:.6px solid gray;"></div>
+
+                    <div>
+                        {% for tag in tag_ %}
+                        <a href="{% url 'qa_tag' tag.slug %}" class="btn btn-success my-btn">
+                            <tags>{{ tag.slug }}</tags>
+                        </a>
+                        {% endfor %}
+                    </div>
+
+
+                    {% if similar_readers.exists and user.user == request.user %}
+                    <div class="rule" style="margin-bottom:20px; margin-top:10px; border:.6px solid gray;"></div>
+
+                    {% comment %} <p>You and these people are reading the same book. Click to chat with them.</p>
+
+                    <div>
+                        <ul>
+                            {% for reader in similar_readers %}<a href="{% url 'message' reader.username %}">
+                                <li>@{{ reader.username }}</li>
+                            </a>{% endfor %}
+                        </ul>
+                    </div> {% endcomment %}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        <div aria-labelledby="data" class="tab-pane fade" id="contact" role="tabpanel">
+            <p class="text-center py-2">Your quizzer documents.</p>
+            <ul class="list-group">
+                {% for doc in  documents%}
+                <div class="py-1 w-100 list-group-item">
+                    <a href="{% url 'document' ''|add:doc.unique_id %}">
+                        <p class="d-inline px-1" style="color:black;"><i class="fas fa-atom"></i></p>
+                        <p class="d-inline px-1" style="color:black;">{{doc.title.title}}</p>
+                    </a>
+                    <p class="d-inline px-1" id="unique_id_{{ forloop.counter0 }}" >{{doc.unique_id}}</p>
+                    <p class="d-inline small px-1 toClip" data-clipboard-target="#unique_id_{{ forloop.counter0 }}" data-toggle="tooltip" data-placement="top" title="Copy to clipboard"><i class="far fa-copy"></i></p>
+                    <a href="{% url 'results' ''|add:doc.unique_id %}"><button class="btn btn-small btn-flat" type="button">View results</button></a>
+                </div>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_script %}
+new ClipboardJS('.toClip');
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+{% endblock extra_script %}
+
+

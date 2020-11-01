@@ -1,0 +1,32 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="container-fluid w-100 h-100">
+
+    {% if messages %}
+        <ul class="messages text-center">
+            {% for message in messages %}
+            <li>
+                <div {% if message.tags %}class="alert alert-{{ message.tags }} my-1"{% endif %} role="alert">
+                {{ message }}
+                </div>
+            </li>
+
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="h5 py-2 text-center">
+        Here are the actions you can currently perform.
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-4">
+            {% include 'action_card.html' with action="Study Quizzer" image_url="auto_study.jpg" url_path="copyPaste"%}
+        </div>
+        <div class="col-12 col-md-4">
+            {% include 'action_card.html' with action="Read a book" image_url="reader.jpg"  url_path="upload_pdf"%}
+        </div>
+        <div class="col-12 col-md-4">
+            {% include 'action_card.html' with action="Create a test" image_url="create_study.jpg" url_path="create_test"%}
+        </div>
+    </div>
+</div>
+{% endblock content %}

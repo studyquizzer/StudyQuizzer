@@ -1,0 +1,33 @@
+{
+    "name": "Crackerbox",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "directories": {
+        "test": "tests"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "CHOKIDAR_USEPOLLING=true babel crackerbox_/static/js/react_test/jsx -d crackerbox_/static/js/react_test/prod -w",
+        "bundle": "CHOKIDAR_USEPOLLING=true watchify -p tinyify crackerbox_/static/js/react_test/prod/testReactEntryPoint.js -o crackerbox_/static/js/react_test/prod/bundle.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-react-app": "^3.1.2",
+        "chokidar": "^3.4.3",
+        "js-cookie": "^2.2.1",
+        "regenerator-runtime": "^0.13.7"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.11.6",
+        "@babel/core": "^7.11.6",
+        "@babel/preset-env": "^7.11.5",
+        "@babel/preset-react": "^7.10.4",
+        "babel-preset-minify": "^0.5.1",
+        "tinyify": "^3.0.0",
+        "watchify": "^3.11.1"
+    }
+}

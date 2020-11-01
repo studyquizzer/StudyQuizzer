@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container w-100" style="">
+	<div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2 text-center mx-auto mb-0">
+		<form id="fileform" class="form" role="form" action="{% url 'copyPaste' %}" method="post" enctype="multipart/form-data">
+			{% csrf_token %}
+			{{form | crispy}}
+			<button class="btn btn-dark" type="submit">Submit</button>
+		</form>
+	</div>
+
+</div>
+
+
+{% endblock %}
