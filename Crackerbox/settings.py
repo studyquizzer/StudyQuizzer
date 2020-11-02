@@ -1,12 +1,29 @@
+import json
 import os
 import sqlite3
+from os.path import expanduser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 DEBUG = False
-SECRET_KEY = os.environ["SECRET_KEY"]
+
+home_directory = expanduser("~")
+
+with open(home_directory + "/.env/secrets.json") as f:
+    secrets = json.loads(f.read())
+
+
+def get_secret(setting, secrets=secrets):
+    """Get the secret variable or return explicit exception."""
+    try:
+        return secrets[setting]
+    except KeyError:
+        return os.environ[setting]
+
+
+SECRET_KEY = get_secret("SECRET_KEY")
 
 if DEBUG:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "172.21.0.24"]
@@ -56,16 +73,20 @@ else:
         },
     }
 
-    ALLOWED_HOSTS = ["178.62.121.69", "studyquizzer.com", "www.studyquizzer.com"]
+    ALLOWED_HOSTS = [
+        "178.62.121.69",
+        "studyquizzer.com",
+        "www.studyquizzer.com",
+    ]
 
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql_psycopg2",
             "HOST": "localhost",
-            "port": '',
+            "port": "",
             "NAME": "studyquizzer",
             "USER": "quizzeruser",
-            "PASSWORD": os.environ["DB_PASSWORD"],
+            "PASSWORD": get_secret("DB_PASSWORD"),
         }
     }
 
@@ -211,7 +232,7 @@ EMAIL_HOST = "ds2-eude-ss.host.gl"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "noreply@studyquizzer.com"
-EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
@@ -229,7 +250,7 @@ Q_CLUSTER = {
     "redis": {
         "host": "localhost:6379",
         "port": 6379,
-        "password": os.environ["REDIS_PASSWORD"],
+        "password": get_secret("REDIS_PASSWORD"),
         "db": 0,
     },
     "error_reporter": {
