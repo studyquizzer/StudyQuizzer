@@ -36,6 +36,7 @@ jobs:
                   passphrase: ${{ secrets.PASSPHRASE }}
                   envs: SECRET_KEY, REDIS_PASSWORD, EMAIL_HOST_PASSWORD, DB_PASSWORD
                   script: |
+                      echo "$SECRET_KEY"
                       . .bashrc
                       source miniconda3/etc/profile.d/conda.sh
                       cd StudyQuizzer
