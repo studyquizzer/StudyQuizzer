@@ -30,8 +30,7 @@ jobs:
                   port: ${{ secrets.PORT }}
                   passphrase: ${{ secrets.PASSPHRASE }}
                   script: |
-                      export PATH="/home/main/miniconda/bin:$PATH"
-                      bash
+                      source ~/.bashrc
                       cd StudyQuizzer
                       git pull origin main
                       git reset --hard origin/main
