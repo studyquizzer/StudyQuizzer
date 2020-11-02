@@ -30,6 +30,7 @@ jobs:
                   port: ${{ secrets.PORT }}
                   passphrase: ${{ secrets.PASSPHRASE }}
                   script: |
+                      pwd
                       cd $HOME/Studyquizzer
                       git pull origin main
                       git reset --hard origin/main
