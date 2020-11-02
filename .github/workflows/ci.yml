@@ -30,10 +30,7 @@ jobs:
                   port: ${{ secrets.PORT }}
                   passphrase: ${{ secrets.PASSPHRASE }}
                   script: |
-                      pwd
-                      ls
-                      whoami
-                      cd $HOME/Studyquizzer
+                      cd Studyquizzer
                       git pull origin main
                       git reset --hard origin/main
                       conda activate production_env
