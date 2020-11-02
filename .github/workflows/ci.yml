@@ -31,6 +31,7 @@ jobs:
                   passphrase: ${{ secrets.PASSPHRASE }}
                   script: |
                       . .bashrc
+                      source miniconda3/etc/profile.d/conda.sh
                       cd StudyQuizzer
                       git pull origin main
                       git reset --hard origin/main
