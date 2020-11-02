@@ -33,5 +33,6 @@ jobs:
                       cd $HOME/Studyquizzer
                       git pull origin main
                       git reset --hard origin/main
+                      conda activate production_env
                       pip install -r requirements.txt
                       python manage.py migrate
