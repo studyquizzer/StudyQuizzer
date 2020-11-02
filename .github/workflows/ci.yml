@@ -23,7 +23,7 @@ jobs:
 
             - name: executing remote ssh commands using ssh
               uses: appleboy/ssh-action@master
-              envs:
+              env:
                   SECRET_KEY: ${{ secrets.SECRET_KEY }}
                   REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
                   EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
