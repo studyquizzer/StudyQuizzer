@@ -21,14 +21,20 @@ jobs:
             #       python -m pip install --upgrade pip
             #       pip install -r requirements.txt
 
-            - name: executing remote ssh commands using password
+            - name: executing remote ssh commands using ssh
               uses: appleboy/ssh-action@master
+              envs:
+                  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+                  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+                  EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+                  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
               with:
                   host: ${{ secrets.HOST }}
                   username: ${{ secrets.USERNAME }}
                   key: ${{ secrets.SSH_KEY }}
                   port: ${{ secrets.PORT }}
                   passphrase: ${{ secrets.PASSPHRASE }}
+                  envs: SECRET_KEY, REDIS_PASSWORD, EMAIL_HOST_PASSWORD, DB_PASSWORD
                   script: |
                       . .bashrc
                       source miniconda3/etc/profile.d/conda.sh
