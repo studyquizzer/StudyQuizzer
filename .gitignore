@@ -129,3 +129,4 @@ node_modules
 .pylintrc
 prep.sh
 pylint_out.txt
+secrets.json

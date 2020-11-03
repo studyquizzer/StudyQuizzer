@@ -11,7 +11,7 @@ DEBUG = False
 
 home_directory = expanduser("~")
 
-with open(home_directory + "/.env/secrets.json") as f:
+with open(home_directory + "/.env") as f:
     secrets = json.loads(f.read())
 
 
@@ -26,7 +26,7 @@ def get_secret(setting, secrets=secrets):
 SECRET_KEY = get_secret("SECRET_KEY")
 
 if DEBUG:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "172.21.0.24"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
     DATABASES = {
         "default": {
@@ -74,7 +74,7 @@ else:
     }
 
     ALLOWED_HOSTS = [
-        "178.62.121.69",
+        "165.232.40.239",
         "studyquizzer.com",
         "www.studyquizzer.com",
     ]
