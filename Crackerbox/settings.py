@@ -46,7 +46,7 @@ else:
             "file": {
                 "level": "INFO",
                 "class": "logging.FileHandler",
-                "filename": "/home/main/log/django.log",
+                "filename": "/home/quizzer/logs/django.log",
                 "formatter": "app",
             },
             "mail_admins": {
