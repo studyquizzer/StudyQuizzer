@@ -33,8 +33,6 @@ jobs:
                       . .bashrc
                       source miniconda3/etc/profile.d/conda.sh
                       cd StudyQuizzer
-                      eval $(ssh-agent -s)
-                      ssh-add ~/.ssh/github_actions
                       git pull origin main
                       git reset --hard origin/main
                       conda activate production_env
