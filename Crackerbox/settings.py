@@ -11,8 +11,11 @@ DEBUG = False
 
 home_directory = expanduser("~")
 
-with open(home_directory + "/.env") as f:
-    secrets = json.loads(f.read())
+if not DEBUG:
+    with open(home_directory + "/.env") as f:
+        secrets = json.loads(f.read())
+else:
+    secrets = {}
 
 
 def get_secret(setting, secrets=secrets):
