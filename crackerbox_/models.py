@@ -10,7 +10,7 @@ from validators import validate_file_extension, validate_file_size
 
 
 class AllDocumentCount(models.Model):
-    name = models.CharField(max_length=10, default="Document_count")
+    name = models.CharField(max_length=50, default="Document_count")
     count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
