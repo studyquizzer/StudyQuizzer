@@ -38,3 +38,4 @@ jobs:
                       conda activate production_env
                       pip install -r requirements.txt
                       python manage.py migrate
+                      systemctl restart gunicorn
