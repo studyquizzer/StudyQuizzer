@@ -269,7 +269,7 @@ ADMINS = [
 MANAGERS = [
     ("Shepherd", "shepherd@studyquizzer.com"),
 ]
-
+SERVER_EMAIL = 'errors@studyquizzer.com'
 DJANGO_NOTIFICATIONS_CONFIG = {"SOFT_DELETE": True}
 
 connection = sqlite3.connect(f"{BASE_DIR}/Crackerbox/mcq_distractors.db")

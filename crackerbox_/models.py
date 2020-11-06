@@ -44,7 +44,7 @@ class Document(models.Model):
         default=timezone.now, editable=False, blank=True
     )
     slug = models.SlugField(unique=True, null=True, blank=True)
-    unique_id = models.CharField(max_length=32, default="")
+    unique_id = models.CharField(max_length=64, default="")
 
     def __str__(self):
         return self.title
