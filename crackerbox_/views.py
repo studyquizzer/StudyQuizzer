@@ -21,6 +21,7 @@ from crackerbox_.models import (
     COMPLETE,
     PROCESSING,
     ERROR,
+    IN_QUEUE,
 )
 from utils import get_similar_readers, unique_slug_generator
 
@@ -130,7 +131,7 @@ def copy_paste_quizzer(request):
 
             doc = form.generateDocumentObject(request.user)
             doc.owner = request.user
-            doc.status = models.Document.IN_QUEUE
+            doc.status = IN_QUEUE
             doc.save()
 
             async_task(
