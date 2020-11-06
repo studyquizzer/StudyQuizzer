@@ -248,7 +248,7 @@ Q_CLUSTER = {
     "max_attempts": 0,
     "label": "Django Q",
     "redis": {
-        "host": "localhost:6379",
+        "host": f"{get_secret('HOST')}:6379",
         "port": 6379,
         "password": get_secret("REDIS_PASSWORD"),
         "db": 0,
