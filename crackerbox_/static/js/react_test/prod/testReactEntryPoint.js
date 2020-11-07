@@ -35,6 +35,7 @@ var regeneratorRuntime = require('regenerator-runtime');
 var element = React.createElement;
 var domContainer = document.querySelector('#entry_point');
 var hostname = window.location.hostname;
+hostname = hostname === '127.0.0.1' ? '127.0.0.1:8000' : 'studyquizzer.com';
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
 
@@ -83,10 +84,10 @@ var quizzerEntry = function quizzerEntry() {
       return;
     }
 
-    axios.post("https://".concat(hostname, ":8000/crackerbox/create_quizzer_test/"), {
+    axios.post("https://".concat(hostname, "/crackerbox/create_quizzer_test/"), {
       data: state
     }).then(function (resp) {
-      return window.location.replace("https://".concat(hostname, ":8000/crackerbox/"));
+      return window.location.replace("https://".concat(hostname, "/crackerbox/"));
     });
   };
 

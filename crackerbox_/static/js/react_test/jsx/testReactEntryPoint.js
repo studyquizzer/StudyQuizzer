@@ -4,7 +4,8 @@ const regeneratorRuntime = require('regenerator-runtime');
 
 const element = React.createElement;
 const domContainer = document.querySelector('#entry_point');
-const hostname = window.location.hostname;
+let hostname = window.location.hostname;
+hostname = hostname === '127.0.0.1' ? '127.0.0.1:8000' : 'studyquizzer.com';
 
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
@@ -45,11 +46,11 @@ const quizzerEntry = () => {
             return;
         }
         axios
-            .post(`https://${hostname}:8000/crackerbox/create_quizzer_test/`, {
+            .post(`https://${hostname}/crackerbox/create_quizzer_test/`, {
                 data: state,
             })
             .then((resp) =>
-                window.location.replace(`https://${hostname}:8000/crackerbox/`)
+                window.location.replace(`https://${hostname}/crackerbox/`)
             );
     };
     const template = (

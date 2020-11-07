@@ -30,6 +30,11 @@ var _require = require('./questionCard'),
 var element = React.createElement;
 var domContainer = document.querySelector('#entry_point');
 var hostname = window.location.hostname;
+console.log(hostname);
+console.log(hostname);
+console.log(hostname);
+console.log(hostname);
+console.log("hostname");
 var initialState = {
   questions: [],
   status: 0,
@@ -48,18 +53,20 @@ var quizzerEntry = function quizzerEntry() {
 
   var populate = /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-      var _yield$axios$get, data;
+      var _yield$axios$get$catc, data;
 
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               _context.next = 2;
-              return axios.get("http://".concat(hostname, ":8000/docjson/crackerbox/documents/").concat(unique_id));
+              return axios.get("https://".concat(hostname, "/docjson/crackerbox/documents/").concat(unique_id))["catch"](function (err) {
+                return console.log(err);
+              });
 
             case 2:
-              _yield$axios$get = _context.sent;
-              data = _yield$axios$get.data;
+              _yield$axios$get$catc = _context.sent;
+              data = _yield$axios$get$catc.data;
 
             case 4:
               if (!(data.status === 1 || data.status === 0)) {
@@ -68,7 +75,9 @@ var quizzerEntry = function quizzerEntry() {
               }
 
               _context.next = 7;
-              return axios.get("http://".concat(hostname, ":8000/docjson/crackerbox/documents/").concat(unique_id));
+              return axios.get("https://".concat(hostname, "/docjson/crackerbox/documents/").concat(unique_id))["catch"](function (err) {
+                return console.log(err);
+              });
 
             case 7:
               data = _context.sent;
@@ -111,10 +120,12 @@ var quizzerEntry = function quizzerEntry() {
     return function () {};
   }, []);
   React.useEffect(function () {
-    axios.post("http://".concat(hostname, ":8000/crackerbox/save_result/"), {
+    axios.post("https://".concat(hostname, "/crackerbox/save_result/"), {
       score: state.score,
       total: state.total,
       id: unique_id
+    })["catch"](function (err) {
+      return console.log(err);
     });
     return function () {};
   }, [state.score, state.questions]);

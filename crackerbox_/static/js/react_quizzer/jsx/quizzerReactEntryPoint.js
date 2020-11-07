@@ -3,8 +3,8 @@ const { default: QuestionCard } = require('./questionCard');
 
 const element = React.createElement;
 const domContainer = document.querySelector('#entry_point');
-const hostname = window.location.hostname;
-
+let hostname = window.location.hostname;
+hostname = hostname === "127.0.0.1" ? "127.0.0.1:8000" : "studyquizzer.com"
 const initialState = {
     questions: [],
     status: 0,
@@ -12,7 +12,6 @@ const initialState = {
     score: 0,
     total: 0,
 };
-
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
 
@@ -20,13 +19,17 @@ const quizzerEntry = () => {
     const [state, setstate] = React.useState(initialState);
 
     const populate = async () => {
-        let { data } = await axios.get(
-            `https://${hostname}:8000/docjson/crackerbox/documents/${unique_id}`
-        );
+        let { data } = await axios
+            .get(
+                `https://${hostname}/docjson/crackerbox/documents/${unique_id}`
+            )
+            .catch((err) => console.log(err));
         while (data.status === 1 || data.status === 0) {
-            data = await axios.get(
-                `https://${hostname}:8000/docjson/crackerbox/documents/${unique_id}`
-            );
+            data = await axios
+                .get(
+                    `https://${hostname}/docjson/crackerbox/documents/${unique_id}`
+                )
+                .catch((err) => console.log(err));
             data = data.data;
         }
 
@@ -50,11 +53,13 @@ const quizzerEntry = () => {
     }, []);
 
     React.useEffect(() => {
-        axios.post(`https://${hostname}:8000/crackerbox/save_result/`, {
-            score: state.score,
-            total: state.total,
-            id: unique_id,
-        });
+        axios
+            .post(`https://${hostname}/crackerbox/save_result/`, {
+                score: state.score,
+                total: state.total,
+                id: unique_id,
+            })
+            .catch((err) => console.log(err));
         return () => {};
     }, [state.score, state.questions]);
 
