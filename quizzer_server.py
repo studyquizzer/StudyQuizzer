@@ -1,4 +1,6 @@
+import gzip
 import json
+import random
 import re
 import sys
 from datetime import datetime
@@ -10,6 +12,7 @@ from threading import currentThread
 from time import sleep
 from urllib import parse
 from urllib.parse import parse_qs, urlparse
+
 
 import spacy
 from loguru import logger
@@ -85,7 +88,48 @@ class Handler(BaseHTTPRequestHandler):
         keywords = self._keywords.get_keywords(node_weight, 10)
         return keywords
 
-    def make_output(self, **kwargs):
+    def sentence_scoring_filter(self, text: str) -> bool:
+        """
+        Returns True if the sentence is valid .
+
+        Args:
+            text (str): [description]
+
+        Returns:
+            bool: [description]
+        """
+        return text[-1] != "?" and text[-2] != "?" and len(text) > 60
+
+    def sample_sentences(self, sentences: list, num_of_questions: int) -> list:
+        """
+        Return a random sample of sentences .
+
+        Args:
+            sentences (list): [description]
+            num_of_questions (int): [description]
+
+        Returns:
+            list: [description]
+        """
+        sentences = list(filter(self.sentence_scoring_filter, sentences))
+        selected = random.sample(
+            sentences, k=min(num_of_questions, len(sentences))
+        )
+        return selected
+
+    def make_sentences(self, doc, num):
+        sentences = list(doc.sents)
+        sentences = list(map(lambda x: x.text, sentences))
+        sentences = self.sample_sentences(sentences, num)
+        return sentences
+
+    def make_output(self, **kwargs) -> dict:
+        """
+        Build a dictionary of output dictionaries .
+
+        Returns:
+            [dict]: [description]
+        """
         out = {}
         out["ner"] = kwargs.get("ner", [])
         out["nps"] = kwargs.get("nps", [])
@@ -96,28 +140,42 @@ class Handler(BaseHTTPRequestHandler):
         return out
 
     def do_POST(self):
+        """
+        Do a POST request .
+        """
         content_length = int(self.headers["Content-Length"])
         body = self.rfile.read(content_length)
+        body = json.loads(gzip.decompress(body))
 
-        index = parse_qs(urlparse(self.path).query)["index"][0]
-        op_code = parse_qs(urlparse(self.path).query)["op_code"][0]
+        text, num = body["text"], body["num"]
+        doc = nlp(text)
 
-        self.send_response(200)
-        self.end_headers()
+        out = {}
+        sentences = self.make_sentences(doc, num)
 
-        if op_code == "tagging":
-            doc = nlp(body.decode())
+        out["keywords"] = self.do_keywords(text)
+        out["sentences"] = sentences
+
+        analysis = []
+        for ix, paragraph in enumerate(sentences):
+            doc = nlp(paragraph)
+
             ner = self.do_ner(doc)
             np = self.do_np(doc)
             nouns = self.do_np_pos_tag(doc)
             vb = self.do_vb(doc)
             aux_vb = self.do_aux_verb(doc)
 
-            out = self.make_output(
-                ner=ner, nps=np, nouns=nouns, vb=vb, aux_vb=aux_vb, ix=index
+            analysis.append(
+                self.make_output(
+                    ner=ner, nps=np, nouns=nouns, vb=vb, aux_vb=aux_vb, ix=ix
+                )
             )
-        elif op_code == "keywords":
-            out = self.do_keywords(body.decode())
+
+        out["analysis"] = analysis
+
+        self.send_response(200)
+        self.end_headers()
 
         response = BytesIO()
         response.write(json.dumps(out).encode())

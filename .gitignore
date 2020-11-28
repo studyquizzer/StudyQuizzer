@@ -131,6 +131,5 @@ prep.sh
 pylint_out.txt
 secrets.json
 dump.rdb
-dump.rdb
 
 .history/
