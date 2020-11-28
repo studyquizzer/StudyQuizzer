@@ -1,3 +1,4 @@
+import gzip
 import json
 import random
 import re
@@ -27,26 +28,18 @@ perform_negation = [True, False]
 
 en_stopwords = stopwords.words("english")
 
-headers = {"Content-Type": "application/json"}
+headers = {"Content-Type": "application/json", "content-encoding": "gzip"}
 spacy_url = "http://localhost:8791/"
 
 
-def generate_sentences(text):
+def assert_text_usable(text):
     length = len(text.split())
     okay = length > 40
 
     if not okay:
         raise NotEnoughWordsError(length)
 
-    sentences = [sent.string for sent in TextBlob(text).sentences]
-    return sentences
-
-
-def sample_sentences(sentences, num_of_questions):
-    selected = random.sample(
-        sentences, k=min(num_of_questions, len(sentences))
-    )
-    return selected
+    return True
 
 
 def generate_single_tf(command, sentence, data, doc):
@@ -176,31 +169,21 @@ def crackerbox(text, id, num_of_questions):
     doc.status = PROCESSING
     doc.save()
 
-    sentences = generate_sentences(text)
+    body = json.dumps({"text": text, "num": num_of_questions}).encode("utf-8")
+    body = gzip.compress(body)
 
-    sentences = sample_sentences(sentences, num_of_questions)
-
-    sentences_data = (
-        requests.post(
-            spacy_url,
-            headers=headers,
-            data=sent.encode("utf-8"),
-            params={"index": str(ix), "op_code": "tagging"},
-        ).content
-        for ix, sent in enumerate(sentences)
-    )
-
-    keywords_data = requests.post(
-        url=spacy_url,
-        headers=headers,
-        params={"index": "0", "op_code": "keywords"},
-        data=text.encode("utf-8"),
+    response = requests.post(
+        url=spacy_url, headers=headers, data=body,
     ).content
 
-    keywords_ = json.loads(keywords_data.decode())
+    response = json.loads(response.decode())
+    sentences, sentences_data, keywords_ = (
+        response["sentences"],
+        response["analysis"],
+        response["keywords"],
+    )
 
-    for item in sentences_data:
-        data = json.loads(item.decode())
+    for data in sentences_data:
 
         current_sentence = sentences[int(data["ix"])]
 

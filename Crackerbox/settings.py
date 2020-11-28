@@ -226,8 +226,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
 }
 
-CSRF_COOKIE_SECURE = True
-
 LOGIN_REDIRECT_URL = "home"
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -269,7 +267,7 @@ ADMINS = [
 MANAGERS = [
     ("Shepherd", "shepherd@studyquizzer.com"),
 ]
-SERVER_EMAIL = 'errors@studyquizzer.com'
+SERVER_EMAIL = "errors@studyquizzer.com"
 DJANGO_NOTIFICATIONS_CONFIG = {"SOFT_DELETE": True}
 
 connection = sqlite3.connect(f"{BASE_DIR}/Crackerbox/mcq_distractors.db")
