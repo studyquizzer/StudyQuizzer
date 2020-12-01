@@ -187,18 +187,18 @@ def crackerbox(text, id, num_of_questions):
 
         current_sentence = sentences[int(data["ix"])]
 
-        tf_present, tf_commands = can_do_tf(data)
+        # tf_present, tf_commands = can_do_tf(data)
 
-        if tf_present:
-            try:
-                generate_single_tf(tf_commands, current_sentence, data, doc)
-            except Exception as error:
-                handle_error(
-                    id,
-                    "true or false exception  " + traceback.format_exc(),
-                    current_sentence,
-                )
-            continue
+        # if tf_present:
+        #     try:
+        #         generate_single_tf(tf_commands, current_sentence, data, doc)
+        #     except Exception as error:
+        #         handle_error(
+        #             id,
+        #             "true or false exception  " + traceback.format_exc(),
+        #             current_sentence,
+        #         )
+        #     continue
 
         try:
             generate_fill_in_the_blank(
