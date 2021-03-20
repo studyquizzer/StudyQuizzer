@@ -27,7 +27,7 @@ django-model-utils==4.0.0
 django-notifications-hq==1.6.0
 django-taggit==1.1.0
 django-widget-tweaks==1.4.8
-djangorestframework==3.10.3
+djangorestframework==3.11.2
 docopt==0.6.2
 execnet==1.7.1
 flake8==3.8.3
