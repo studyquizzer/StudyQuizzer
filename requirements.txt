@@ -87,7 +87,7 @@ pluggy==0.13.1
 preshed==3.0.2
 progress==1.5
 pusher-chatkit-server==1.0.4
-py==1.8.2
+py==1.10.0
 pycodestyle==2.6.0
 pycparser==2.20
 pyflakes==2.2.0
