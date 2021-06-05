@@ -26,7 +26,7 @@ coverage==5.1
 cymem==2.0.3
 distlib==0.3.0
 distro==1.4.0
-Django==3.0.8
+Django==3.1.9
 django-annoying==0.10.6
 django-appconf==1.0.4
 django-archive==0.1.6
