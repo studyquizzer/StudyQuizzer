@@ -59,7 +59,7 @@ idna==2.9
 inflect==4.1.0
 ipaddr==2.2.0
 isort==4.3.21
-joblib==0.16.0
+joblib==1.2.0
 jprq==1.0.4
 jsonfield==3.1.0
 kombu==4.6.11
